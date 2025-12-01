@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>記事一覧</title>
+  <style>
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      padding: 8px;
+      border: 1px solid #ccc;
+    }
+    th {
+      background: #eee;
+    }
+  </style>
+</head>
+<body>
+
+<h1>投稿済み記事一覧</h1>
+<table id="table"></table>
+
+<!-- CSV パーサー -->
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script>
+const csvUrl = "./data/article_list.csv"; // CSV のパス
+
+Papa.parse(csvUrl, {
+  download: true,
+  header: true,
+  complete: function(results) {
+    const table = document.getElementById("table");
+    const data = results.data;
+
+    // ヘッダー生成
+    const thead = document.createElement("thead");
+    const headRow = document.createElement("tr");
+    Object.keys(data[0]).forEach(key => {
+      const th = document.createElement("th");
+      th.textContent = key;
+      headRow.appendChild(th);
+    });
+    thead.appendChild(headRow);
+    table.appendChild(thead);
+
+    // 行生成
+    const tbody = document.createElement("tbody");
+    data.forEach(row => {
+      const tr = document.createElement("tr");
+      Object.values(row).forEach(cell => {
+        const td = document.createElement("td");
+
+        // URLならリンク化
+        if (typeof cell === "string" && cell.startsWith("http")) {
+          const a = document.createElement("a");
+          a.href = cell;
+          a.textContent = cell;
+          a.target = "_blank";
+          td.appendChild(a);
+        } else {
+          td.textContent = cell;
+        }
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+  }
+});
+</script>
+
+</body>
+</html>
